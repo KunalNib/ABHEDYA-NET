@@ -214,10 +214,13 @@ class LLMReasoningService:
 
         # Execute mock provider synchronously for demo runner if loop is not running
         mock = MockLLMProvider()
-        import asyncio
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+
+            if loop and loop.is_running():
                 # Direct call to mock provider logic
                 cur_state = context.get("current_state", {})
                 cur_risk = cur_state.get("security_risk", 0.10)
@@ -235,7 +238,7 @@ class LLMReasoningService:
                     execution_blocked=True
                 )
             else:
-                return loop.run_until_complete(mock.generate_reasoning(context))
+                return asyncio.run(mock.generate_reasoning(context))
         except Exception:
             return LLMReasoningOutput(
                 current_attack_stage="Discovery",

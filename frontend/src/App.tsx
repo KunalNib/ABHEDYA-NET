@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { PermissionProvider } from './context/PermissionContext';
 import { RealtimeProvider } from './context/RealtimeContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 import { AppShell } from './components/layout/AppShell';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
@@ -26,10 +27,11 @@ import { SettingsPage } from './components/pages/SettingsPage';
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <PermissionProvider>
-          <RealtimeProvider>
-            <Routes>
+      <ThemeProvider>
+        <AuthProvider>
+          <PermissionProvider>
+            <RealtimeProvider>
+              <Routes>
               {/* Public Auth Routes */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -88,6 +90,7 @@ export const App: React.FC = () => {
           </RealtimeProvider>
         </PermissionProvider>
       </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 };

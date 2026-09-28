@@ -1,25 +1,29 @@
-import React from 'react';
-import { FileCode, Shield, CheckCircle2, Lock } from 'lucide-react';
-
-export interface AuditLogItem {
-  id: string;
-  timestamp: string;
-  user: string;
-  role: string;
-  action: string;
-  target: string;
-  result: 'SUCCESS' | 'DENIED' | 'FAILED';
-  ip: string;
-}
-
-const AUDIT_LOGS: AuditLogItem[] = [
-  { id: 'aud-01', timestamp: '2026-09-04 03:28:10', user: 'Kunal (Admin)', role: 'ADMIN', action: 'Update Defence Policy POL-001', target: 'Adaptive Defence Engine', result: 'SUCCESS', ip: '10.0.0.5' },
-  { id: 'aud-02', timestamp: '2026-09-04 03:25:44', user: 'Sarah Chen', role: 'SOC_ANALYST', action: 'View Attack Path Graph', target: 'Attack Path Engine', result: 'SUCCESS', ip: '10.0.0.12' },
-  { id: 'aud-03', timestamp: '2026-09-04 03:22:15', user: 'Marcus Vance', role: 'SECURITY_ENGINEER', action: 'Activate Adaptive Decoy DB', target: 'Deception Zone VLAN 99', result: 'SUCCESS', ip: '10.0.0.15' },
-  { id: 'aud-04', timestamp: '2026-09-04 03:18:02', user: 'Audit Observer', role: 'VIEWER', action: 'Attempt Decoy Activation', target: 'Deception Engine', result: 'DENIED', ip: '10.0.0.99' }
-];
+import React, { useState, useEffect } from 'react';
+import { FileCode, Shield, CheckCircle2, Lock, RefreshCw } from 'lucide-react';
+import { fetchAuditLogs, AuditLogItem } from '../../services/api';
 
 export const AdminAuditPage: React.FC = () => {
+  const [logs, setLogs] = useState<AuditLogItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const loadLogs = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchAuditLogs(50);
+      if (Array.isArray(data)) {
+        setLogs(data);
+      }
+    } catch (e) {
+      console.warn('Backend audit API fetch notice:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadLogs();
+  }, []);
+
   return (
     <div className="space-y-6 font-mono select-none">
       <div className="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -32,7 +36,17 @@ export const AdminAuditPage: React.FC = () => {
           </p>
         </div>
 
-        <span className="badge-green">READ-ONLY AUDIT TRAIL</span>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={loadLogs}
+            disabled={loading}
+            className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 hover:text-white flex items-center space-x-1.5 transition-colors"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>REFRESH</span>
+          </button>
+          <span className="badge-green">READ-ONLY AUDIT TRAIL</span>
+        </div>
       </div>
 
       <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
@@ -49,7 +63,7 @@ export const AdminAuditPage: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60">
-            {AUDIT_LOGS.map((log) => (
+            {logs.map((log) => (
               <tr key={log.id} className="hover:bg-slate-800/40 transition-colors">
                 <td className="p-4 text-slate-400">{log.timestamp}</td>
                 <td className="p-4 font-bold text-white">{log.user}</td>

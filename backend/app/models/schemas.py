@@ -578,15 +578,49 @@ class ClosedLoopStartRequest(BaseModel):
     interval_sec: float = 2.0
 
 
+# ============================================================
+# 11. AUTHENTICATION & RBAC SCHEMAS
+# ============================================================
+class LoginRequest(BaseModel):
+    email: str
+    password: Optional[str] = "adminpassword123"
 
 
+class UserResponse(BaseModel):
+    id: str
+    name: str
+    email: str
+    role: str
+    status: str
+    lastLogin: Optional[str] = None
 
 
+class AuthSessionResponse(BaseModel):
+    token: str
+    user: UserResponse
+    expiresAt: str
+    environment: str = "LOCAL DEFENCE LAB"
+    permissions: List[str] = []
 
 
+class UserCreateRequest(BaseModel):
+    name: str
+    email: str
+    role: str = "SOC_ANALYST"
+    password: Optional[str] = "password123"
 
 
+class UserRoleUpdateRequest(BaseModel):
+    role: str
 
 
-
-
+class AuditLogResponse(BaseModel):
+    id: str
+    timestamp: str
+    user: str
+    role: str
+    action: str
+    target: str
+    result: str
+    ip: str
+    details: Optional[str] = None

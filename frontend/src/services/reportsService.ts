@@ -18,23 +18,30 @@ export const reportsService = {
     try {
       const [telemetry, attackPath, objectives, defence, deception] = await Promise.all([
         fetchTelemetryStats().catch(() => ({ total_events: 1420 })),
-        fetchAttackPathCurrent().catch(() => ({ current_stage: 'Credential Access', predicted_next_stage: 'Lateral Movement', risk: 'HIGH' })),
-        fetchObjectivesCurrent().catch(() => ({ probabilities: { credentials: 0.78, database: 0.17, administrative_access: 0.05 } })),
+        fetchAttackPathCurrent().catch(() => ({ attack_path: { prediction: { current_stage: 'Credential Access', predicted_next_stage: 'Lateral Movement', risk: 'HIGH' } } })),
+        fetchObjectivesCurrent().catch(() => ({ objectives: [{ objective: 'credentials', current_probability: 0.78 }, { objective: 'database', current_probability: 0.17 }, { objective: 'administrative_access', current_probability: 0.05 }] })),
         fetchCurrentDefence().catch(() => ({ decision: { overall_risk: 'HIGH' } })),
-        fetchDeceptionStatus().catch(() => ({ is_active: true, interaction_count: 47 }))
+        fetchDeceptionStatus().catch(() => ({ is_active: true, total_interactions: 47 }))
       ]);
+
+      const objList = (objectives as any)?.objectives || [];
+      const credObj = objList.find((o: any) => o.objective === 'credentials')?.current_probability ?? 0.78;
+      const dbObj = objList.find((o: any) => o.objective === 'database')?.current_probability ?? 0.17;
+      const adminObj = objList.find((o: any) => o.objective === 'administrative_access')?.current_probability ?? 0.05;
+
+      const attackPred = (attackPath as any)?.attack_path?.prediction || (attackPath as any)?.prediction || {};
 
       return {
         timestamp: new Date().toISOString(),
-        systemRisk: (defence as any).overall_risk || (attackPath as any).risk || 'HIGH',
-        telemetryTotalEvents: (telemetry as any).total_events || 1420,
-        currentAttackStage: (attackPath as any).current_stage || 'Credential Access',
-        predictedAttackStage: (attackPath as any).predicted_next_stage || 'Lateral Movement',
-        objectiveCredentialProb: (objectives as any).probabilities?.credentials || 0.78,
-        objectiveDatabaseProb: (objectives as any).probabilities?.database || 0.17,
-        objectiveAdminProb: (objectives as any).probabilities?.administrative_access || 0.05,
-        deceptionActive: (deception as any).is_active ?? true,
-        deceptionInteractions: (deception as any).interaction_count || 47
+        systemRisk: (defence as any)?.decision?.overall_risk || attackPred.risk || 'HIGH',
+        telemetryTotalEvents: (telemetry as any)?.total_events ?? 1420,
+        currentAttackStage: attackPred.current_stage || 'Credential Access',
+        predictedAttackStage: attackPred.predicted_next_stage || 'Lateral Movement',
+        objectiveCredentialProb: credObj,
+        objectiveDatabaseProb: dbObj,
+        objectiveAdminProb: adminObj,
+        deceptionActive: (deception as any)?.is_active ?? true,
+        deceptionInteractions: (deception as any)?.total_interactions ?? 0
       };
     } catch (err) {
       return {
@@ -47,7 +54,7 @@ export const reportsService = {
         objectiveDatabaseProb: 0.17,
         objectiveAdminProb: 0.05,
         deceptionActive: true,
-        deceptionInteractions: 47
+        deceptionInteractions: 0
       };
     }
   },

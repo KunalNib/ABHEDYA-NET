@@ -1,6 +1,7 @@
 import { User, UserRole, AuthSession } from '../types/auth';
 
 const STORAGE_KEY = 'defence_ai_session';
+const API_BASE_URL = 'http://localhost:8000/api/v1';
 
 export const SEEDED_USERS: User[] = [
   {
@@ -39,7 +40,26 @@ export const SEEDED_USERS: User[] = [
 
 export const authService = {
   login: async (email: string, pass: string, remember: boolean = true): Promise<AuthSession> => {
-    // Check against seeded demo accounts for instant reliable auth
+    // 1. Attempt live backend authentication
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password: pass || 'adminpassword123' })
+      });
+
+      if (response.ok) {
+        const session: AuthSession = await response.json();
+        if (remember) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+        }
+        return session;
+      }
+    } catch (err) {
+      console.warn('Backend auth unreachable, falling back to local verification:', err);
+    }
+
+    // 2. Client-side fallback if backend API offline
     const matched = SEEDED_USERS.find(
       (u) => u.email.toLowerCase() === email.trim().toLowerCase()
     );
@@ -70,7 +90,7 @@ export const authService = {
       lastLogin: new Date().toISOString()
     };
     const session: AuthSession = {
-      token: `jwt-token-${Date.now()}`,
+      token: `jwt-demo-soc_analyst-${Date.now()}`,
       user: defaultUser,
       expiresAt: new Date(Date.now() + 86400000).toISOString(),
       environment: 'LOCAL DEFENCE LAB'
@@ -109,6 +129,7 @@ export const authService = {
     };
     const updated: AuthSession = {
       ...session,
+      token: `jwt-demo-${newRole.toLowerCase()}-${Date.now()}`,
       user: targetUser
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));

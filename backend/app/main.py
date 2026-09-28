@@ -82,8 +82,11 @@ def system_status():
         }
     }
 
-# Mount API Router
+# Mount API Router and Root WebSocket
+from app.api.endpoints import websocket_endpoint
+app.websocket("/ws")(websocket_endpoint)
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
 
 if __name__ == "__main__":
     import uvicorn

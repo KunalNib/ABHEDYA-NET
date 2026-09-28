@@ -4,22 +4,43 @@ Predicts future network state S_{t+1} from sequence of historical states S_{t-N.
 Supports PyTorch / NumPy when available, with pure Python fallback for high portability.
 """
 
-from typing import List
+import os
+import logging
+from typing import List, Optional
 from app.models.schemas import NetworkState
 from app.core.config import settings
+
+logger = logging.getLogger("CHRONOS-WS.WorldModel")
 
 class TemporalWorldModel:
     def __init__(self):
         self.input_dim = settings.INPUT_DIM
         self.seq_length = settings.SEQUENCE_LENGTH
+        self._inference_engine = None
+        self._init_engine()
+
+    def _init_engine(self):
+        try:
+            from ml.inference import TemporalInferenceEngine
+            checkpoint_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'checkpoints', 'world_model.pth'))
+            if os.path.exists(checkpoint_path):
+                self._inference_engine = TemporalInferenceEngine(checkpoint_path=checkpoint_path)
+                logger.info(f"Loaded PyTorch LSTM World Model from {checkpoint_path}")
+        except Exception as e:
+            logger.warning(f"Could not load PyTorch TemporalInferenceEngine: {e}. Using heuristic fallback.")
 
     def predict_next_state(self, historical_states: List[NetworkState]) -> NetworkState:
         if not historical_states:
             return NetworkState(timestamp="Predicted S_{t+1}")
             
+        if self._inference_engine is not None:
+            try:
+                pred_state, conf, tag = self._inference_engine.predict_next_state(historical_states)
+                return pred_state
+            except Exception as e:
+                logger.warning(f"PyTorch LSTM prediction failed: {e}. Falling back to extrapolation.")
+
         latest = historical_states[-1]
-        
-        # Extrapolate state metrics with risk scaling
         risk = latest.security_risk
         
         return NetworkState(
@@ -47,3 +68,4 @@ class TemporalWorldModel:
         )
 
 world_model = TemporalWorldModel()
+

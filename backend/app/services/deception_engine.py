@@ -137,6 +137,39 @@ class AdaptiveDeceptionEngine:
         logger.warning(f"[DECOY TRAP INTERACTION CAPTURED] Attacker {attacker_ip} targeted {target_decoy}: {payload}")
         return event
 
+    def simulate_attacker_interaction(self, attacker_ip: str = "192.168.99.150") -> TelemetryEvent:
+        """Simulates and records an attacker probe trapped in the decoy environment."""
+        dec_event = self.record_interaction(
+            attacker_ip=attacker_ip,
+            target_decoy="Adaptive Decoy Database",
+            payload="UNION SELECT username, password_hash FROM admin_users --",
+            protocol="PostgreSQL"
+        )
+        return TelemetryEvent(
+            event_id=f"FEEDBACK-{dec_event.event_id}",
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            source="decoy_honeypot",
+            event_type="DECOY_INTERACTION",
+            asset_id="decoy_db_01",
+            severity="CRITICAL",
+            source_ip=attacker_ip,
+            dest_ip="192.168.99.10",
+            dest_port=5433,
+            protocol="PostgreSQL",
+            payload_summary=dec_event.payload_summary,
+            is_decoy_interaction=True,
+            features={"trapped": True, "deception_vlan": 99, "payload_signature": "SQLi_Admin_Dump"}
+        )
+
+    def reset(self):
+        """Resets deception state and isolates decoys."""
+        self.is_active = False
+        self.trapped_attacker_ips.clear()
+        self.captured_events.clear()
+        self.last_interaction = None
+        for decoy in self.decoys:
+            decoy.status = "ISOLATED"
+
     def get_deception_state(self) -> DeceptionState:
         """Returns backward-compatible DeceptionState for DemoState runner."""
         decoy_names = [f"{d.name} (Port {d.port})" for d in self.decoys if d.status == "ACTIVE"]

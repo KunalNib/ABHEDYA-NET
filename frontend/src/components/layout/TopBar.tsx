@@ -10,11 +10,14 @@ import {
   ChevronDown,
   Play,
   RotateCcw,
-  Sparkles
+  Sparkles,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { usePermission } from '../../context/PermissionContext';
 import { useRealtime } from '../../context/RealtimeContext';
+import { useTheme } from '../../context/ThemeContext';
 import { NotificationCenter } from './NotificationCenter';
 import { CommandPalette } from './CommandPalette';
 import { UserRole } from '../../types/auth';
@@ -22,13 +25,22 @@ import { UserRole } from '../../types/auth';
 export const TopBar: React.FC = () => {
   const { user, logout, environment, setEnvironment, switchRole } = useAuth();
   const { role } = usePermission();
-  const { wsConnected, judgeDemoActive, startJudgeDemo, stopJudgeDemo } = useRealtime();
+  const { wsConnected, judgeDemoActive, startJudgeDemo, stopJudgeDemo, livePrediction, currentDemoStepData } = useRealtime();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+
+  const currentRisk = livePrediction?.risk || currentDemoStepData?.risk || 'NOMINAL';
+  const confidencePercent = livePrediction
+    ? Math.round(livePrediction.confidence * 100)
+    : (currentDemoStepData as any)?.confidence
+    ? Math.round((currentDemoStepData as any).confidence * 100)
+    : 85;
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showEnvMenu, setShowEnvMenu] = useState(false);
+
 
   return (
     <header className="bg-slate-900/95 border-b border-slate-800 px-4 py-2.5 sticky top-0 z-40 backdrop-blur-md font-mono text-xs select-none">
@@ -106,10 +118,17 @@ export const TopBar: React.FC = () => {
             <span>{wsConnected ? 'LIVE STREAM' : 'OFFLINE'}</span>
           </div>
 
-          <div className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-rose-950/60 border border-rose-800/40 text-rose-300 font-bold text-xs">
-            <span>Overall Risk:</span>
-            <span className="text-rose-400 uppercase">HIGH (78%)</span>
+          <div className={`flex items-center space-x-1.5 px-3 py-1 rounded-full border text-xs font-bold ${
+            currentRisk === 'CRITICAL' || currentRisk === 'HIGH'
+              ? 'bg-rose-950/60 border-rose-800/40 text-rose-300'
+              : currentRisk === 'ELEVATED' || currentRisk === 'MEDIUM'
+              ? 'bg-amber-950/60 border-amber-800/40 text-amber-300'
+              : 'bg-emerald-950/60 border-emerald-800/40 text-emerald-300'
+          }`}>
+            <span className="text-slate-400">Risk:</span>
+            <span className="uppercase">{currentRisk} ({confidencePercent}%)</span>
           </div>
+
 
           {judgeDemoActive && (
             <div className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40 font-bold text-xs animate-pulse">
@@ -146,6 +165,25 @@ export const TopBar: React.FC = () => {
               onClose={() => setShowNotifications(false)}
             />
           </div>
+
+          {/* Theme Toggle (Light / Dark Mode) */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-orange-400 transition-colors"
+            title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+          >
+            {theme === 'light' ? (
+              <>
+                <Sun className="w-4 h-4 text-amber-500" />
+                <span className="hidden sm:inline text-[11px] font-bold text-amber-600">LIGHT</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-4 h-4 text-blue-400" />
+                <span className="hidden sm:inline text-[11px] font-bold text-slate-300">DARK</span>
+              </>
+            )}
+          </button>
 
           {/* User Menu Dropdown */}
           <div className="relative">

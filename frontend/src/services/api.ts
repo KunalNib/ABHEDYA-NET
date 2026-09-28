@@ -36,10 +36,33 @@ export interface SecurityOverviewResponse {
   layers: SecurityLayer[];
 }
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+export const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL
+  ? `${(import.meta as any).env.VITE_API_BASE_URL}/api/v1`
+  : 'http://localhost:8000/api/v1';
+
+
+export function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json'
+  };
+  try {
+    const raw = localStorage.getItem('defence_ai_session');
+    if (raw) {
+      const sess = JSON.parse(raw);
+      if (sess && sess.token) {
+        headers['Authorization'] = `Bearer ${sess.token}`;
+      }
+    }
+  } catch (e) {
+    // ignore json parse error
+  }
+  return headers;
+}
 
 export async function fetchSecurityOverview(): Promise<SecurityOverviewResponse> {
-  const response = await fetch(`${API_BASE_URL}/security/overview`);
+  const response = await fetch(`${API_BASE_URL}/security/overview`, {
+    headers: getAuthHeaders()
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch security overview: ${response.statusText}`);
   }
@@ -47,7 +70,9 @@ export async function fetchSecurityOverview(): Promise<SecurityOverviewResponse>
 }
 
 export async function fetchSecurityLayers(): Promise<SecurityLayer[]> {
-  const response = await fetch(`${API_BASE_URL}/security/layers`);
+  const response = await fetch(`${API_BASE_URL}/security/layers`, {
+    headers: getAuthHeaders()
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch security layers: ${response.statusText}`);
   }
@@ -55,7 +80,9 @@ export async function fetchSecurityLayers(): Promise<SecurityLayer[]> {
 }
 
 export async function fetchSecurityEvents(limit: number = 50): Promise<SecurityLayerEvent[]> {
-  const response = await fetch(`${API_BASE_URL}/security/events?limit=${limit}`);
+  const response = await fetch(`${API_BASE_URL}/security/events?limit=${limit}`, {
+    headers: getAuthHeaders()
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch security events: ${response.statusText}`);
   }
@@ -99,7 +126,9 @@ export interface LoadBalancerDecisionResponse {
 }
 
 export async function fetchLoadBalancerStatus(): Promise<LoadBalancerStatusResponse> {
-  const response = await fetch(`${API_BASE_URL}/load-balancer/status`);
+  const response = await fetch(`${API_BASE_URL}/load-balancer/status`, {
+    headers: getAuthHeaders()
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch load balancer status: ${response.statusText}`);
   }
@@ -107,7 +136,9 @@ export async function fetchLoadBalancerStatus(): Promise<LoadBalancerStatusRespo
 }
 
 export async function fetchLoadBalancerDecision(): Promise<LoadBalancerDecisionResponse> {
-  const response = await fetch(`${API_BASE_URL}/load-balancer/decision`);
+  const response = await fetch(`${API_BASE_URL}/load-balancer/decision`, {
+    headers: getAuthHeaders()
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch load balancer decision: ${response.statusText}`);
   }
@@ -121,7 +152,7 @@ export async function updateServerRisk(
 ): Promise<LoadBalancerStatusResponse> {
   const response = await fetch(`${API_BASE_URL}/load-balancer/update-risk`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({
       server_id: serverId,
       security_risk: securityRisk,
@@ -219,6 +250,46 @@ export async function fetchLatestNetworkState(): Promise<FullNetworkState> {
   }
   return response.json();
 }
+
+export interface NetworkTopologyAsset {
+  id: string;
+  name: string;
+  type: string;
+  role: string;
+  health: number;
+  cpu: number;
+  memory: number;
+  connections: number;
+  security_risk: number;
+  trust_level: number;
+  isDecoy?: boolean;
+  ip?: string;
+}
+
+export interface NetworkTopologyLink {
+  source: string;
+  target: string;
+  protocol: string;
+  status: string;
+}
+
+export interface NetworkTopologyResponse {
+  timestamp: string;
+  assets: NetworkTopologyAsset[];
+  links: NetworkTopologyLink[];
+  total_connections: number;
+  average_risk: number;
+  active_threats: number;
+}
+
+export async function fetchNetworkTopology(): Promise<NetworkTopologyResponse> {
+  const response = await fetch(`${API_BASE_URL}/network/topology`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch network topology: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 
 // Stage 8: Attack Path Prediction Interfaces
 export interface AttackPathNode {
@@ -504,7 +575,7 @@ export async function fetchDeceptionEvents(): Promise<DeceptionEventsResponse> {
 export async function activateDeception(policyValidated: boolean = true): Promise<DeceptionActivateResponse> {
   const response = await fetch(`${API_BASE_URL}/deception/activate`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ policy_validated: policyValidated, triggered_by: 'Stage 12 Adaptive Defence Engine' })
   });
   if (!response.ok) {
@@ -515,7 +586,8 @@ export async function activateDeception(policyValidated: boolean = true): Promis
 
 export async function deactivateDeception(): Promise<DeceptionStatusResponse> {
   const response = await fetch(`${API_BASE_URL}/deception/deactivate`, {
-    method: 'POST'
+    method: 'POST',
+    headers: getAuthHeaders()
   });
   if (!response.ok) {
     throw new Error(`Failed to deactivate deception zone: ${response.statusText}`);
@@ -553,7 +625,9 @@ export interface WSEventMessage {
 }
 
 export async function fetchClosedLoopStatus(): Promise<ClosedLoopStatusResponse> {
-  const response = await fetch(`${API_BASE_URL}/closed-loop/status`);
+  const response = await fetch(`${API_BASE_URL}/closed-loop/status`, {
+    headers: getAuthHeaders()
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch closed-loop status: ${response.statusText}`);
   }
@@ -563,7 +637,7 @@ export async function fetchClosedLoopStatus(): Promise<ClosedLoopStatusResponse>
 export async function startClosedLoop(intervalSec: number = 2.0): Promise<ClosedLoopStatusResponse> {
   const response = await fetch(`${API_BASE_URL}/closed-loop/start`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ interval_sec: intervalSec })
   });
   if (!response.ok) {
@@ -574,7 +648,8 @@ export async function startClosedLoop(intervalSec: number = 2.0): Promise<Closed
 
 export async function stopClosedLoop(): Promise<ClosedLoopStatusResponse> {
   const response = await fetch(`${API_BASE_URL}/closed-loop/stop`, {
-    method: 'POST'
+    method: 'POST',
+    headers: getAuthHeaders()
   });
   if (!response.ok) {
     throw new Error(`Failed to stop closed loop: ${response.statusText}`);
@@ -584,7 +659,8 @@ export async function stopClosedLoop(): Promise<ClosedLoopStatusResponse> {
 
 export async function stepClosedLoop(): Promise<any> {
   const response = await fetch(`${API_BASE_URL}/closed-loop/step`, {
-    method: 'POST'
+    method: 'POST',
+    headers: getAuthHeaders()
   });
   if (!response.ok) {
     throw new Error(`Failed to execute single closed loop step: ${response.statusText}`);
@@ -607,6 +683,169 @@ export function createClosedLoopWebSocket(onMessage: (event: WSEventMessage) => 
 
   return ws;
 }
+
+// Admin & Audit Interfaces
+export interface AuditLogItem {
+  id: string;
+  timestamp: string;
+  user: string;
+  role: string;
+  action: string;
+  target: string;
+  result: 'SUCCESS' | 'DENIED' | 'FAILED';
+  ip: string;
+  details?: string;
+}
+
+export async function fetchAuditLogs(limit: number = 50): Promise<AuditLogItem[]> {
+  const response = await fetch(`${API_BASE_URL}/audit/logs?limit=${limit}`, {
+    headers: getAuthHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch audit logs: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function fetchUsersApi(): Promise<any[]> {
+  const response = await fetch(`${API_BASE_URL}/users`, {
+    headers: getAuthHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch users: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function createUserApi(userData: { name: string; email: string; role: string }): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/users`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(userData)
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create user: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function updateUserRoleApi(userId: string, role: string): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ role })
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to update user role: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function toggleUserStatusApi(userId: string): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/users/${userId}/status`, {
+    method: 'PATCH',
+    headers: getAuthHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to toggle user status: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+// -------------------------------------------------------------
+// MAIN SIH LIVE TESTBED & MODE MANAGEMENT API
+// -------------------------------------------------------------
+
+export interface SystemModeStatus {
+  mode: 'LIVE_CONTROLLED_TEST' | 'DATASET_REPLAY' | 'JUDGE_DEMO';
+  is_running: boolean;
+  cycle_count: number;
+  sensors: {
+    telemetry: 'LIVE' | 'OFFLINE';
+    network_state: 'LIVE' | 'OFFLINE';
+    ai_world_model: 'RUNNING' | 'STANDBY';
+    llm_reasoning: 'CONNECTED' | 'FALLBACK';
+    deception: 'ACTIVE' | 'INACTIVE';
+    load_balancer: 'ACTIVE' | 'STANDBY';
+    database: 'CONNECTED' | 'DISCONNECTED';
+  };
+  adapter_statuses?: Record<string, any>;
+}
+
+export interface LiveTimelineEvent {
+  timestamp: string;
+  source: string;
+  asset: string;
+  event_type: string;
+  severity: 'INFO' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  description: string;
+}
+
+export async function setSystemModeApi(mode: string): Promise<SystemModeStatus> {
+  const response = await fetch(`${API_BASE_URL}/mode/set`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ mode })
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to set system mode: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function getSystemModeStatusApi(): Promise<SystemModeStatus> {
+  const response = await fetch(`${API_BASE_URL}/mode/status`, {
+    headers: getAuthHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch system mode status: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function stepLiveTestbedApi(): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/live-testbed/step`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to execute live testbed step: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function resetLiveTestbedApi(): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/live-testbed/reset`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to reset live testbed: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function fetchLiveTimelineApi(): Promise<LiveTimelineEvent[]> {
+  const response = await fetch(`${API_BASE_URL}/live-testbed/timeline`, {
+    headers: getAuthHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch live timeline: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function stepDatasetReplayApi(): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/dataset-replay/step`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to execute dataset replay step: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 
 
 
