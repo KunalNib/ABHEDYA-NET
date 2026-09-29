@@ -1,4 +1,4 @@
-# 🛡️ CHRONOS-WS
+# 🛡️ ABHEDYA-NET
 ### Autonomous AI Cybersecurity, Attack-Path Prediction & Adaptive Deception Platform
 
 > **Predict. Defend. Deceive.**  
@@ -56,9 +56,9 @@ npm run dev
 
 > **"Judges, current SOC defenses are fundamentally reactive—they wait for an attacker to break a known signature rule before triggering an alert. By then, exfiltration or ransomware encryption is already underway.**
 >
-> **Introducing CHRONOS-WS. We have shifted defense from static rule-matching to an Autonomous, Predictive, and Deceptive Counter-Engagement Platform.**
+> **Introducing ABHEDYA-NET. We have shifted defense from static rule-matching to an Autonomous, Predictive, and Deceptive Counter-Engagement Platform.**
 >
-> **CHRONOS-WS doesn't just log attacks; it uses a Graph Neural AI World Model to forecast where the attacker will move next ($S_{t+1}$), infers their hidden objective, dynamically reroutes traffic via a security-aware load balancer, and traps them in isolated Honeypot Decoy Zones—keeping production assets 100% safe while capturing adversary TTPs."**
+> **ABHEDYA-NET doesn't just log attacks; it uses a Graph Neural AI World Model to forecast where the attacker will move next ($S_{t+1}$), infers their hidden objective, dynamically reroutes traffic via a security-aware load balancer, and traps them in isolated Honeypot Decoy Zones—keeping production assets 100% safe while capturing adversary TTPs."**
 
 ---
 
@@ -98,7 +98,7 @@ flowchart LR
 
 ## 🖥️ Comprehensive Page-by-Page Guide
 
-CHRONOS-WS features a narrative-driven, role-protected security control plane. Below is the detailed breakdown of every page within the platform:
+ABHEDYA-NET features a narrative-driven, role-protected security control plane. Below is the detailed breakdown of every page within the platform:
 
 ---
 
@@ -274,7 +274,7 @@ CHRONOS-WS features a narrative-driven, role-protected security control plane. B
 
 ## 🧩 Global Layout & Operator Controls
 
-Every page in CHRONOS-WS is wrapped inside a persistent **AppShell** featuring:
+Every page in ABHEDYA-NET is wrapped inside a persistent **AppShell** featuring:
 
 - **TopBar Header**:
   - **System Story Indicator**: Live status badge summarizing current threat narrative.
@@ -296,7 +296,7 @@ Click **`TRIGGER DETERMINISTIC DEMO`** on the top bar to run the fixed-seed (`se
 | **Phase 1–3: Observation** | Telemetry change & anomaly detection. | *"Notice baseline normal operation. Suddenly, an anomaly occurs: 12 failed logins in 2.4s from untrusted IP `192.168.99.150`."* |
 | **Phase 4–6: Prediction & Intent** | AI World Model forecasts $S_{t+1}$. | *"Our AI World Model forecasts future threat state $S_{t+1}$ with 87% confidence, predicting lateral movement toward the DB. Objective Engine identifies Credential Access risk rising to 78%."* |
 | **Phase 7–8: Dynamic Response** | Adaptive Defence & Load Balancer rerouting. | *"Instead of shutting down servers, our Load Balancer automatically reduces Server B's weight from 33% to 10%, isolating traffic without causing downtime."* |
-| **Phase 9–10: Deception Trap** | Decoy DB activated on Port 5433 (VLAN 99). | *"CHRONOS-WS spins up an isolated Decoy Database on Port 5433. The attacker is tricked into exfiltrating synthetic data from the trap, while the real PostgreSQL DB remains at ZERO risk."* |
+| **Phase 9–10: Deception Trap** | Decoy DB activated on Port 5433 (VLAN 99). | *"ABHEDYA-NET spins up an isolated Decoy Database on Port 5433. The attacker is tricked into exfiltrating synthetic data from the trap, while the real PostgreSQL DB remains at ZERO risk."* |
 | **Phase 11: Feedback Loop** | Telemetry feedback updates network state. | *"Attacker payload is logged, system feedback loops into the World Model, lowering real asset risk back to LOW."* |
 
 ---
