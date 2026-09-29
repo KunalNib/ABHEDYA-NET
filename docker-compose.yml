@@ -3,12 +3,12 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: chronos_backend
+    container_name: abhedya_backend
     restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      - PROJECT_NAME=CHRONOS-WS
+      - PROJECT_NAME=ABHEDYA-NET
       - ENVIRONMENT=production
       - DATABASE_URL=sqlite:///./chronos_ws.db
       - LLM_PROVIDER=RULE_BASED
@@ -26,7 +26,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: chronos_frontend
+    container_name: abhedya_frontend
     restart: unless-stopped
     ports:
       - "5173:80"

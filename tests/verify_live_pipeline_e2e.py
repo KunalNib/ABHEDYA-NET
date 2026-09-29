@@ -1,5 +1,5 @@
 """
-CHRONOS-WS Live Pipeline End-to-End Verification Test Script
+ABHEDYA-NET Live Pipeline End-to-End Verification Test Script
 Tests all 13 links of the Main SIH Live Cybersecurity Testbed:
 REAL TRAFFIC -> TELEMETRY -> STATE -> LSTM -> PREDICTION -> ATTACK PATH -> OBJECTIVE -> LLM -> POLICY -> DEFENCE -> LOAD BALANCER -> DECOY -> FEEDBACK
 """
@@ -38,7 +38,7 @@ def print_result(step_num: int, step_name: str, status: str, details: str):
 
 def run_e2e_verification():
     print("=" * 75)
-    print("CHRONOS-WS MAIN-SIH LIVE PIPELINE END-TO-END VERIFICATION")
+    print("ABHEDYA-NET MAIN-SIH LIVE PIPELINE END-TO-END VERIFICATION")
     print("=" * 75 + "\n")
 
     results = {}

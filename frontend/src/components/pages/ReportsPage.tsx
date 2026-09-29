@@ -28,13 +28,13 @@ export const ReportsPage: React.FC = () => {
   const handleExport = () => {
     if (!report) return;
     reportsService.exportJSON({
-      platform: 'CHRONOS-WS',
+      platform: 'ABHEDYA-NET',
       reportType: 'SIH_DEFENCE_INCIDENT_ANALYSIS',
       generatedAt: new Date().toISOString(),
       systemMode,
       liveCycle: liveCycleData?.cycle || 1,
       metrics: report
-    }, `chronos_incident_report_${Date.now()}.json`);
+    }, `abhedya_incident_report_${Date.now()}.json`);
     setDownloadSuccess(true);
     setTimeout(() => setDownloadSuccess(false), 3000);
   };

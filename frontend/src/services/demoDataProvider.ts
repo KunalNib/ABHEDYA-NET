@@ -1,5 +1,5 @@
 /**
- * DemoDataProvider: Fallback data provider abstraction for CHRONOS-WS.
+ * DemoDataProvider: Fallback data provider abstraction for ABHEDYA-NET.
  * Stage 16 Deterministic Judge Demo: "Credential-to-Database Adaptive Defence"
  * Seed: 42 (100% Repeatable Scenario)
  */

@@ -1,5 +1,5 @@
 """
-CHRONOS-WS Database Base Models & Persistent Entities.
+ABHEDYA-NET Database Base Models & Persistent Entities.
 Supports SQLite and PostgreSQL.
 Persists:
 - Users & RBAC Data
@@ -51,7 +51,7 @@ class SystemStatusLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    service_name = Column(String(100), default="CHRONOS-WS")
+    service_name = Column(String(100), default="ABHEDYA-NET")
     status = Column(String(50), default="OPERATIONAL")
     details = Column(Text, nullable=True)
 

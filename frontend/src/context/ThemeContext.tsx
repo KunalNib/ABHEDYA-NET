@@ -8,14 +8,14 @@ interface ThemeContextType {
   setTheme: (theme: ThemeMode) => void;
 }
 
-const THEME_STORAGE_KEY = 'chronos_theme';
+const THEME_STORAGE_KEY = 'abhedya_theme';
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     try {
-      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      const saved = localStorage.getItem(THEME_STORAGE_KEY) || localStorage.getItem('chronos_theme');
       if (saved === 'dark' || saved === 'light') {
         return saved;
       }

@@ -57,7 +57,7 @@ export const TopBar: React.FC = () => {
             <div>
               <div className="flex items-center space-x-1.5">
                 <span className="font-extrabold tracking-tight text-white text-base">
-                  CHRONOS-WS
+                  ABHEDYA-NET
                 </span>
                 <span className="text-[10px] text-orange-400 font-bold bg-orange-950/60 px-1.5 py-0.2 rounded border border-orange-800/40">
                   v2.0

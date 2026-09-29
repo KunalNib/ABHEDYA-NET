@@ -43,7 +43,7 @@ from app.core.security import (
 from app.db.database import hash_password
 from app.db.repository import db_repo
 
-logger = logging.getLogger("CHRONOS-WS.API")
+logger = logging.getLogger("ABHEDYA-NET.API")
 
 router = APIRouter()
 

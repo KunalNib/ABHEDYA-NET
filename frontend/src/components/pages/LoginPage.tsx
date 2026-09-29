@@ -48,7 +48,7 @@ export const LoginPage: React.FC = () => {
             <Shield className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight text-white uppercase">
-            CHRONOS-WS
+            ABHEDYA-NET
           </h1>
           <p className="text-xs text-orange-400 font-bold uppercase tracking-wider">
             Secure Command Center Authentication

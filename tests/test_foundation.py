@@ -1,5 +1,5 @@
 """
-Automated Pytest suite for CHRONOS-WS Stage 1 Foundation.
+Automated Pytest suite for ABHEDYA-NET Stage 1 Foundation.
 Tests /health, /api/v1/system/status, and database connectivity.
 """
 
@@ -21,14 +21,14 @@ def test_health_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] in ["healthy", "degraded"]
-    assert data["platform"] == "CHRONOS-WS"
+    assert data["platform"] == "ABHEDYA-NET"
     assert "timestamp" in data
 
 def test_system_status_endpoint():
     response = client.get("/api/v1/system/status")
     assert response.status_code == 200
     data = response.json()
-    assert data["system"] == "CHRONOS-WS"
+    assert data["system"] == "ABHEDYA-NET"
     assert data["status"] in ["operational", "degraded"]
     assert "components" in data
     assert data["components"]["data_plane"] == "operational"

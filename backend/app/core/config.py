@@ -6,8 +6,8 @@ import os
 from pydantic import BaseModel
 
 class Settings(BaseModel):
-    PROJECT_NAME: str = "CHRONOS-WS"
-    FULL_TITLE: str = "CHRONOS-WS: AI-Driven Adaptive Cyber Deception & Attack-Path Prediction Platform"
+    PROJECT_NAME: str = os.getenv("PROJECT_NAME", "ABHEDYA-NET")
+    FULL_TITLE: str = os.getenv("FULL_TITLE", "ABHEDYA-NET: AI-Driven Adaptive Cyber Deception & Attack-Path Prediction Platform")
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     

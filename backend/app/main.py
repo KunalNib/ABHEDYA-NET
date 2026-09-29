@@ -1,5 +1,5 @@
 """
-CHRONOS-WS Backend Application Foundation.
+ABHEDYA-NET Backend Application Foundation.
 FastAPI + Pydantic + Structured Logging + Health Checks + Exception Handlers.
 """
 
@@ -18,14 +18,14 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
-logger = logging.getLogger("CHRONOS-WS")
+logger = logging.getLogger("ABHEDYA-NET")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Initializing CHRONOS-WS Application Foundation...")
+    logger.info("Initializing ABHEDYA-NET Application Foundation...")
     init_db()
     yield
-    logger.info("Shutting down CHRONOS-WS Application Foundation...")
+    logger.info("Shutting down ABHEDYA-NET Application Foundation...")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
